@@ -11,7 +11,8 @@ const transporter = nodemailer.createTransport({
 
 const sendEmail = (username, email, activationLink) => {
     const mailOptions = {
-        from: `"FaceTrace" <no-reply@${urls.frontend.replace(/^https?:\/\//, '')}>`, // Sender address
+        //from: `"FaceTrace" <no-reply@${urls.frontend.replace(/^https?:\/\//, '')}>`, // Sender address
+        from: `"FaceTrace" <no-reply@dancs.org>`, // Sender address
         to: `"${username}" <${email}>`, // Recipient address
         subject: 'Activate Your FaceTrace Account', // Subject line
         text: `Activate your account by clicking the link: ${activationLink}`, // Fallback plain text body
