@@ -9,7 +9,7 @@ ENV PORT=3000
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+COPY ackage*.json ./
 
 # Install dependencies
 RUN npm ci
