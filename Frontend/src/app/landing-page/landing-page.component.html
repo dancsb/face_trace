@@ -1,0 +1,82 @@
+<app-navbar></app-navbar>
+
+<div class="container">
+  <h2>Upload a New Image</h2>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Description</mat-label>
+    <textarea matInput rows="4" [(ngModel)]="description"></textarea>
+  </mat-form-field>
+
+  <div class="file-upload">
+    <input type="file" id="fileInput" (change)="onFileSelected($event)" hidden />
+    <button mat-stroked-button color="accent" (click)="fileInput.click()">Choose File</button>
+    <span *ngIf="selectedFile">{{ selectedFile.name }}</span>
+    <input #fileInput type="file" (change)="onFileSelected($event)" hidden />
+  </div>
+
+  <button mat-raised-button color="primary" (click)="upload()" [disabled]="!description || !selectedFile">
+    Upload
+  </button>
+
+  <h2 class="image-list-title">Uploaded Images</h2>
+
+  <p *ngIf="images.length === 0">No images uploaded yet.</p>
+  <div class="image-overlay-container" *ngIf="selectedImage">
+    <div class="overlay-backdrop" (click)="closeFullImage()"></div>
+    <div class="image-overlay-box">
+      <img [src]="selectedImage.url"
+           alt="Full Image"
+           (load)="onImageLoad($event, selectedImage)"
+      />
+
+      <div *ngFor="let box of selectedImage.boundingBoxes"
+           class="bounding-box"
+           [ngStyle]="{
+           left: box.x + 'px',
+           top: box.y + 'px',
+           width: box.width + 'px',
+           height: box.height + 'px'
+         }">
+      </div>
+
+      <button mat-icon-button class="close-button" (click)="closeFullImage()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+
+  <div class="image-grid" *ngIf="images.length > 0">
+    <mat-card *ngFor="let image of images" class="image-card">
+      <div class="image-preview-wrapper">
+        <img #previewImage
+             mat-card-image
+             [src]="image.url"
+             alt="Uploaded Image"
+             (load)="onPreviewImageLoad($event, image)"
+             (click)="openFullImage(image)"
+             style="cursor: pointer;" />
+
+        <div *ngFor="let box of image.previewBoxes"
+             class="bounding-box"
+             [ngStyle]="{
+           left: box.x + 'px',
+           top: box.y + 'px',
+           width: box.width + 'px',
+           height: box.height + 'px'
+         }">
+        </div>
+      </div>
+
+      <mat-card-content>
+        <p>{{ image.description }}</p>
+        <p *ngIf="image.detectedPeopleCount > 0">
+          Detected: {{ image.detectedPeopleCount }} people
+        </p>
+      </mat-card-content>
+    </mat-card>
+
+
+  </div>
+</div>

@@ -1,0 +1,462 @@
+openapi: 3.0.0
+info:
+  title: FaceTrace API
+  description: |-
+    This is ithe backend API for the FaceTrace app.
+  termsOfService: http://facetrace.dancs.org/tos/
+  contact:
+    email: apiteam@facetrace.dancs.org
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:4080
+tags:
+  - name: Authentication
+    description: User Authentication
+  - name: User
+    description: Operations about user
+  - name: Image
+    description: Image management operations
+paths:
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login and JWT token issuance
+      description: Authenticates the user and returns a JWT token if credentials are correct.
+      operationId: userLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: The email address of the user
+                password:
+                  type: string
+                  format: password
+                  description: The password for the user
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: Successful login and JWT token issued
+          headers:
+            Authorization:
+              description: JWT token for authentication in future requests
+              schema:
+                type: string
+                example: "Bearer your.jwt.token"
+        "401":
+          description: Unauthorized. Incorrect email or password.
+        "400":
+          description: Bad Request. Missing or invalid parameters.
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Logout user
+      description: Invalidate the current session
+      operationId: userLogout
+      security:
+        - jwtCookieAuth: []
+      responses:
+        "200":
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Successfully logged out"
+
+  /user:
+    get:
+      tags: [User]
+      summary: Get leggoed in user
+      description: Returns the details of the authenticated user.
+      operationId: userGet
+      security:
+        - jwtCookieAuth: []
+      responses:
+        "200":
+          description: User details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized. User is not logged in.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags: [User]
+      summary: Create a new user
+      description: Creates a new user account and sends a confirmation email.
+      operationId: userCreate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+              required:
+                - username
+                - email
+                - password
+      responses:
+        "201":
+          description: User created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  message:
+                    type: string
+              example:
+                id: "123456"
+                message: "User created successfully. Please check your email to activate your account."
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      tags: [User]
+      summary: Update user account
+      description: Updates the details of an existing user.
+      operationId: userUpdate
+      security:
+        - jwtCookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                  format: email
+              required:
+                - username
+                - email
+      responses:
+        "200":
+          description: User updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "User updated successfully."
+        "404":
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags: [User]
+      summary: Delete user account
+      description: Deletes a user account based on the userid.
+      operationId: userDelete
+      security:
+        - jwtCookieAuth: []
+      responses:
+        "200":
+          description: User deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "User deleted successfully."
+        "404":
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /user/{userId}:
+    get:
+      tags: [User]
+      summary: Get user by Id
+      description: Returns the details of a user.
+      operationId: userGetById
+      security:
+        - jwtCookieAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the user to query
+      responses:
+        "200":
+          description: User details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized. User is not logged in.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /user/change_password:
+    put:
+      tags: [User]
+      summary: Change user password
+      description: Cahnges the password of an existing user.
+      operationId: userChangePassword
+      security:
+        - jwtCookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                oldPassword:
+                  type: string
+                  format: password
+                newPassword:
+                  type: string
+                  format: password
+              required:
+                - oldPassword
+                - newPassword
+      responses:
+        "200":
+          description: Password changed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Password changed successfully."
+        "404":
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized. Incorrect old password.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /user/email_confirm:
+    post:
+      tags: [User]
+      summary: Confirm user email address
+      description: Confirms a user email address based on a token sent via email.
+      operationId: emailConfirm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+              required:
+                - token
+      responses:
+        "200":
+          description: User account confirmed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Account confirmed successfully."
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /images:
+    post:
+      tags: [Image]
+      summary: Upload a new image
+      description: Uploads a new image, runs human detection, and notifies subscribers.
+      operationId: uploadImage
+      security:
+        - jwtCookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                description:
+                  type: string
+              required:
+                - image
+                - description
+      responses:
+        "201":
+          description: Image uploaded and processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  image:
+                    $ref: '#/components/schemas/Image'
+        "400":
+          description: Bad request (e.g. missing file or description)
+        "500":
+          description: Server error
+
+    get:
+      tags: [Image]
+      summary: List all images
+      description: Returns metadata of all uploaded images.
+      operationId: getAllImages
+      security:
+        - jwtCookieAuth: []
+      responses:
+        "200":
+          description: A list of images
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Image'
+
+components:
+  securitySchemes:
+    jwtCookieAuth:
+      type: apiKey
+      in: cookie
+      name: jwt
+      description: >
+        JWT token passed via a cookie named `jwt`. 
+        This token is required for accessing secured endpoints.
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+        - message
+      example:
+        error: "BadRequest"
+        message: "Invalid input provided."
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - username
+        - email
+    Image:
+      type: object
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        description:
+          type: string
+        uploadedBy:
+          type: string
+        uploadedAt:
+          type: string
+          format: date-time
+        detectedPeopleCount:
+          type: integer
+        boundingBoxes:
+          type: array
+          items:
+            type: object
+            properties:
+              x:
+                type: number
+              y:
+                type: number
+              width:
+                type: number
+              height:
+                type: number
+      required:
+        - id
+        - url
+        - description
+        - uploadedBy
+        - uploadedAt

@@ -1,0 +1,36 @@
+<app-navbar></app-navbar>
+<div class="profile-container">
+    <mat-card class="profile-card">
+      <mat-card-header>
+        <mat-card-title>{{this.userName}}</mat-card-title>
+        <mat-card-subtitle>FaceTrace User</mat-card-subtitle>
+      </mat-card-header>
+  
+      <mat-card-content>
+        <div class="profile-info">
+          <div *ngIf="this.isEditing">
+            <mat-form-field appearance="fill" class="profile-field">
+              <mat-label>Username</mat-label>
+              <input matInput [(ngModel)]="userName" />
+            </mat-form-field>
+          </div>
+          <mat-form-field appearance="fill" class="profile-field">
+            <mat-label>Email</mat-label>
+            <input matInput [(ngModel)]="email" readonly/>
+          </mat-form-field>
+  
+        </div>
+      </mat-card-content>
+  
+      <mat-card-actions>
+        <button
+            mat-raised-button
+            color="primary"
+            (click)="isEditing ? saveProfile() : editProfile()"
+        >
+            {{ isEditing ? 'Save Profile' : 'Edit Profile' }}
+        </button>
+        <button *ngIf="!this.isEditing" mat-raised-button color="warn" (click)="changePassword()">Change Password</button>
+      </mat-card-actions>
+    </mat-card>
+</div>

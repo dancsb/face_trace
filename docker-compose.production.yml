@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  facetrace_frontend:
+    build:
+      context: ./Frontend  # Use the Dockerfile from the Frontend folder
+      args:
+        BUILD_CONFIG: production  # Set the build configuration to 'production'
+    image: facetrace_frontend:latest
+    container_name: facetrace_frontend
+    ports:
+      - "810:4000"
+    depends_on:
+      - facetrace_backend  # Ensure backend starts before the frontend
+
+  facetrace_backend:
+    build:
+      context: ./Backend  # Use the Dockerfile from the Backend folder
+    image: facetrace_backend:latest
+    container_name: facetrace_backend
+    environment:
+      - RUN_CONFIG=production  # Set the build configuration to 'production'
+      - MONGODB_URL=mongodb://mongodb:27017/facetrace  # MongoDB connection URL
+    ports:
+      - "811:4080"
+    depends_on:
+      - mongodb  # Ensure MongoDB starts before the backend
+    volumes:
+      - uploads_data:/uploads  # Mount shared volume for uploads
+
+  mongodb:
+    image: mongo:latest  # Use the latest MongoDB image from Docker Hub
+    container_name: facetrace_mongo
+    ports:
+      - "27080:27017"
+    volumes:
+      - mongodb_data:/data/db  # Persist MongoDB data across container restarts
+
+volumes:
+  mongodb_data:  # Named volume to persist MongoDB data
+  uploads_data:  # Named volume for shared uploads data
+
+networks:
+  default:
+    name: facetrace-network  # Custom network name for the services

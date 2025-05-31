@@ -1,0 +1,543 @@
+openapi: 3.0.0
+info:
+  title: FaceTrace API
+  description: This is ithe backend API for the FaceTrace app.
+  termsOfService: http://facetrace.dancs.org/tos/
+  contact:
+    email: apiteam@facetrace.dancs.org
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: http://localhost:4080
+tags:
+- name: Authentication
+  description: User Authentication
+- name: User
+  description: Operations about user
+- name: Image
+  description: Image management operations
+paths:
+  /auth/login:
+    post:
+      tags:
+      - Authentication
+      summary: User login and JWT token issuance
+      description: Authenticates the user and returns a JWT token if credentials are
+        correct.
+      operationId: userLogin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/auth_login_body'
+        required: true
+      responses:
+        "200":
+          description: Successful login and JWT token issued
+          headers:
+            Authorization:
+              description: JWT token for authentication in future requests
+              style: simple
+              explode: false
+              schema:
+                type: string
+                example: Bearer your.jwt.token
+        "401":
+          description: Unauthorized. Incorrect email or password.
+        "400":
+          description: Bad Request. Missing or invalid parameters.
+      x-swagger-router-controller: Authentication
+  /auth/logout:
+    post:
+      tags:
+      - Authentication
+      summary: Logout user
+      description: Invalidate the current session
+      operationId: userLogout
+      responses:
+        "200":
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+      security:
+      - jwtCookieAuth: []
+      x-swagger-router-controller: Authentication
+  /user:
+    get:
+      tags:
+      - User
+      summary: Get leggoed in user
+      description: Returns the details of the authenticated user.
+      operationId: userGet
+      responses:
+        "200":
+          description: User details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "401":
+          description: Unauthorized. User is not logged in.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - jwtCookieAuth: []
+      x-swagger-router-controller: User
+    put:
+      tags:
+      - User
+      summary: Update user account
+      description: Updates the details of an existing user.
+      operationId: userUpdate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user_body'
+        required: true
+      responses:
+        "200":
+          description: User updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+              example:
+                message: User updated successfully.
+        "404":
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - jwtCookieAuth: []
+      x-swagger-router-controller: User
+    post:
+      tags:
+      - User
+      summary: Create a new user
+      description: Creates a new user account and sends a confirmation email.
+      operationId: userCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user_body_1'
+        required: true
+      responses:
+        "201":
+          description: User created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_201'
+              example:
+                id: "123456"
+                message: User created successfully. Please check your email to activate
+                  your account.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-swagger-router-controller: User
+    delete:
+      tags:
+      - User
+      summary: Delete user account
+      description: Deletes a user account based on the userid.
+      operationId: userDelete
+      responses:
+        "200":
+          description: User deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+              example:
+                message: User deleted successfully.
+        "404":
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - jwtCookieAuth: []
+      x-swagger-router-controller: User
+  /user/{userId}:
+    get:
+      tags:
+      - User
+      summary: Get user by Id
+      description: Returns the details of a user.
+      operationId: userGetById
+      parameters:
+      - name: userId
+        in: path
+        description: ID of the user to query
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: User details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "401":
+          description: Unauthorized. User is not logged in.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - jwtCookieAuth: []
+      x-swagger-router-controller: User
+  /user/change_password:
+    put:
+      tags:
+      - User
+      summary: Change user password
+      description: Cahnges the password of an existing user.
+      operationId: userChangePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user_change_password_body'
+        required: true
+      responses:
+        "200":
+          description: Password changed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+              example:
+                message: Password changed successfully.
+        "404":
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Unauthorized. Incorrect old password.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - jwtCookieAuth: []
+      x-swagger-router-controller: User
+  /user/email_confirm:
+    post:
+      tags:
+      - User
+      summary: Confirm user email address
+      description: Confirms a user email address based on a token sent via email.
+      operationId: emailConfirm
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user_email_confirm_body'
+        required: true
+      responses:
+        "200":
+          description: User account confirmed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+              example:
+                message: Account confirmed successfully.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-swagger-router-controller: User
+  /images:
+    get:
+      tags:
+      - Image
+      summary: List all images
+      description: Returns metadata of all uploaded images.
+      operationId: getAllImages
+      responses:
+        "200":
+          description: A list of images
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Image'
+                x-content-type: application/json
+      security:
+      - jwtCookieAuth: []
+      x-swagger-router-controller: Image
+    post:
+      tags:
+      - Image
+      summary: Upload a new image
+      description: "Uploads a new image, runs human detection, and notifies subscribers."
+      operationId: uploadImage
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/images_body'
+        required: true
+      responses:
+        "201":
+          description: Image uploaded and processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_201_1'
+        "400":
+          description: Bad request (e.g. missing file or description)
+        "500":
+          description: Server error
+      security:
+      - jwtCookieAuth: []
+      x-swagger-router-controller: Image
+components:
+  schemas:
+    Error:
+      required:
+      - error
+      - message
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      example:
+        error: BadRequest
+        message: Invalid input provided.
+    User:
+      required:
+      - email
+      - id
+      - username
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        createdAt:
+          type: string
+          format: date-time
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        id: id
+        email: ""
+        username: username
+    Image:
+      required:
+      - description
+      - id
+      - uploadedAt
+      - uploadedBy
+      - url
+      type: object
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        description:
+          type: string
+        uploadedBy:
+          type: string
+        uploadedAt:
+          type: string
+          format: date-time
+        detectedPeopleCount:
+          type: integer
+        boundingBoxes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image_boundingBoxes'
+      example:
+        boundingBoxes:
+        - x: 6.02745618307040320615897144307382404804229736328125
+          width: 5.962133916683182377482808078639209270477294921875
+          "y": 1.46581298050294517310021547018550336360931396484375
+          height: 5.63737665663332876420099637471139430999755859375
+        - x: 6.02745618307040320615897144307382404804229736328125
+          width: 5.962133916683182377482808078639209270477294921875
+          "y": 1.46581298050294517310021547018550336360931396484375
+          height: 5.63737665663332876420099637471139430999755859375
+        description: description
+        uploadedAt: 2000-01-23T04:56:07.000+00:00
+        id: id
+        uploadedBy: uploadedBy
+        url: url
+        detectedPeopleCount: 0
+    auth_login_body:
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+          description: The email address of the user
+          format: email
+        password:
+          type: string
+          description: The password for the user
+          format: password
+    inline_response_200:
+      type: object
+      properties:
+        message:
+          type: string
+      example:
+        message: Successfully logged out
+    user_body:
+      required:
+      - email
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+    inline_response_200_1:
+      type: object
+      properties:
+        message:
+          type: string
+      example:
+        message: message
+    user_body_1:
+      required:
+      - email
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    inline_response_201:
+      type: object
+      properties:
+        id:
+          type: string
+        message:
+          type: string
+      example:
+        id: id
+        message: message
+    user_change_password_body:
+      required:
+      - newPassword
+      - oldPassword
+      type: object
+      properties:
+        oldPassword:
+          type: string
+          format: password
+        newPassword:
+          type: string
+          format: password
+    user_email_confirm_body:
+      required:
+      - token
+      type: object
+      properties:
+        token:
+          type: string
+    images_body:
+      required:
+      - description
+      - image
+      type: object
+      properties:
+        image:
+          type: string
+          format: binary
+        description:
+          type: string
+    inline_response_201_1:
+      type: object
+      properties:
+        message:
+          type: string
+        image:
+          $ref: '#/components/schemas/Image'
+      example:
+        image:
+          boundingBoxes:
+          - x: 6.02745618307040320615897144307382404804229736328125
+            width: 5.962133916683182377482808078639209270477294921875
+            "y": 1.46581298050294517310021547018550336360931396484375
+            height: 5.63737665663332876420099637471139430999755859375
+          - x: 6.02745618307040320615897144307382404804229736328125
+            width: 5.962133916683182377482808078639209270477294921875
+            "y": 1.46581298050294517310021547018550336360931396484375
+            height: 5.63737665663332876420099637471139430999755859375
+          description: description
+          uploadedAt: 2000-01-23T04:56:07.000+00:00
+          id: id
+          uploadedBy: uploadedBy
+          url: url
+          detectedPeopleCount: 0
+        message: message
+    Image_boundingBoxes:
+      type: object
+      properties:
+        x:
+          type: number
+        "y":
+          type: number
+        width:
+          type: number
+        height:
+          type: number
+      example:
+        x: 6.02745618307040320615897144307382404804229736328125
+        width: 5.962133916683182377482808078639209270477294921875
+        "y": 1.46581298050294517310021547018550336360931396484375
+        height: 5.63737665663332876420099637471139430999755859375
+  securitySchemes:
+    jwtCookieAuth:
+      type: apiKey
+      description: |
+        JWT token passed via a cookie named `jwt`.  This token is required for accessing secured endpoints.
+      name: jwt
+      in: cookie

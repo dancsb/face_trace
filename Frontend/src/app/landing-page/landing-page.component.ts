@@ -1,0 +1,111 @@
+import {Component, inject, OnInit} from '@angular/core';
+import {ImageService} from '../image.service';
+import {Image} from '../image';
+import {NavbarComponent} from '../navbar/navbar.component';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatInputModule} from '@angular/material/input';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {FormsModule} from '@angular/forms';
+import {NgFor, NgIf, NgStyle} from '@angular/common';
+import {environment} from '../../environments/environment';
+
+@Component({
+  selector: 'app-landing-page',
+  standalone: true,
+  imports: [
+    NavbarComponent,
+    MatSidenavModule,
+    MatCardModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatIconModule,
+    FormsModule,
+    NgFor,
+    NgIf,
+    NgStyle
+  ],
+  templateUrl: './landing-page.component.html',
+  styleUrl: './landing-page.component.scss'
+})
+export class LandingPageComponent implements OnInit {
+  imageService = inject(ImageService);
+  selectedImage: Image | null = null;
+
+  openFullImage(image: Image) {
+    this.selectedImage = image;
+    this.selectedImageUrl = image.url;
+  }
+  closeFullImage() {
+    this.selectedImage = null;
+    this.selectedImageUrl = null;
+  }
+
+  description: string = '';
+  selectedFile?: File;
+  images: Image[] = [];
+  selectedImageUrl: string | null = null;
+
+
+  onImageLoad(event: Event, image: Image) {
+    const img = event.target as HTMLImageElement;
+    const scaleX = img.clientWidth / img.naturalWidth;
+    const scaleY = img.clientHeight / img.naturalHeight;
+
+    image.boundingBoxes = image.boundingBoxes.map(box => ({
+      x: box.x,
+      y: box.y,
+      width: box.width,
+      height: box.height
+    }));
+  }
+
+  ngOnInit(): void {
+    this.loadImages();
+  }
+
+  async loadImages(): Promise<void> {
+    try {
+      const temp = await this.imageService.getAllImages();
+      this.images = temp.map(image => ({
+        ...image,
+        url: environment.apiUrl.replace(/\/$/, '') +"/"+ image.url
+      }));
+    } catch (err) {
+      console.error('Failed to load images:', err);
+    }
+  }
+  onPreviewImageLoad(event: Event, image: Image) {
+    const img = event.target as HTMLImageElement;
+    const scaleX = img.clientWidth / img.naturalWidth;
+    const scaleY = img.clientHeight / img.naturalHeight;
+
+    image.previewBoxes = image.boundingBoxes.map(box => ({
+      x: box.x * scaleX,
+      y: box.y * scaleY,
+      width: box.width * scaleX,
+      height: box.height * scaleY
+    }));
+  }
+
+  onFileSelected(event: any): void {
+    this.selectedFile = event.target.files[0];
+  }
+
+  async upload(): Promise<void> {
+    if (!this.selectedFile || !this.description) return;
+
+    try {
+      await this.imageService.uploadImage(this.selectedFile, this.description);
+      this.description = '';
+      this.selectedFile = undefined;
+      await this.loadImages();
+    } catch (err) {
+      console.error('Image upload failed:', err);
+    }
+  }
+}
+

@@ -1,0 +1,43 @@
+mat-toolbar {
+    display: flex;
+    justify-content: space-between; /* Spread start and end sections */
+    align-items: center; /* Align vertically */
+}
+
+.start-section {
+    padding: 0 16px; /* Add some spacing */
+    width: 200px; /* Fixed width */
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.end-section {
+    padding: 0 16px; /* Add some spacing */
+    width: 7%; /* Fixed width */
+}
+
+.mat-button {
+    font-size: 2rem;
+    padding: 16px 16px;
+    height: 100px;
+  }
+
+/* Remove link-specific styles */
+a {
+    color: inherit;          /* Inherit the color from the parent */
+    text-decoration: none;    /* Remove underline */
+  }
+  
+  /* Ensure no change in style when hovered, focused, or visited */
+  a:hover, a:focus, a:active, a:visited {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  mat-icon {
+    transform: scale(2); /* Make the icon bigger */
+  }
+
+mat-icon:hover {
+    transform: scale(2.2); /* Make the icon bigger */
+  }

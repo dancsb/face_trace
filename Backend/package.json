@@ -1,0 +1,27 @@
+{
+  "name": "facetrace-api",
+  "version": "1.0.0",
+  "description": "This is ithe backend API for the FaceTrace app.",
+  "main": "index.js",
+  "scripts": {
+    "prestart": "npm install",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "swagger"
+  ],
+  "license": "Unlicense",
+  "private": true,
+  "dependencies": {
+    "axios": "^1.9.0",
+    "connect": "^3.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "js-yaml": "^3.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.15.0",
+    "mqtt": "^5.13.0",
+    "nodemailer": "^7.0.3",
+    "oas3-tools": "^2.2.3"
+  }
+}

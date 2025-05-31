@@ -1,0 +1,20 @@
+<mat-toolbar color="primary">
+
+    <div class="start-section">
+        <a routerLink="/landing">
+            <mat-icon>
+                home
+            </mat-icon>
+        </a>
+    </div>
+    
+    <div class="end-section">
+        <button mat-button [matMenuTriggerFor]="menu" class="user-button">{{userName}}</button>
+
+        <!-- Dropdown Menu -->
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="navigateTo('/profile')">Profil</button>
+            <button mat-menu-item (click)="logout()">Logout</button>
+        </mat-menu>
+    </div>
+</mat-toolbar>

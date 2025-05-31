@@ -1,0 +1,29 @@
+/* register.component.css */
+
+.register-card {
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+mat-form-field {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+button {
+    width: 100%;
+    margin-top: 16px;
+}
+
+/* Error messages styling */
+mat-error {
+    font-size: 12px;
+    color: red;
+}
+
+/* Add some spacing between fields */
+mat-form-field+mat-form-field {
+    margin-top: 8px;
+}
