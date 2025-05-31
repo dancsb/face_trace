@@ -60,10 +60,10 @@ export class LandingPageComponent implements OnInit {
     const scaleY = img.clientHeight / img.naturalHeight;
 
     image.boundingBoxes = image.boundingBoxes.map((box: { x: number; y: number; width: number; height: number }) => ({
-      x: box.x,
-      y: box.y,
-      width: box.width,
-      height: box.height
+      x: box.x * scaleX,
+      y: box.y * scaleY,
+      width: box.width * scaleX,
+      height: box.height * scaleY
     }));
   }
 
@@ -90,15 +90,21 @@ export class LandingPageComponent implements OnInit {
   }
   onPreviewImageLoad(event: Event, image: Image) {
     const img = event.target as HTMLImageElement;
-    const scaleX = img.clientWidth / img.naturalWidth;
-    const scaleY = img.clientHeight / img.naturalHeight;
 
-    image.previewBoxes = image.boundingBoxes.map(box => ({
-      x: box.x * scaleX,
-      y: box.y * scaleY,
-      width: box.width * scaleX,
-      height: box.height * scaleY
-    }));
+    // Use a single uniform scale factor based on the displayed dimensions
+    const scale = img.clientWidth / img.naturalWidth;
+
+    // Adjust Y-axis placement to account for centering
+    const offsetY = (img.clientHeight - img.naturalHeight * scale) / 2;
+
+    image.previewBoxes = image.boundingBoxes.map(box => {
+      const x = Math.max(0, Math.min(box.x * scale, img.clientWidth));
+      const y = Math.max(0, Math.min(box.y * scale + offsetY, img.clientHeight));
+      const width = Math.min(box.width * scale, img.clientWidth - x);
+      const height = Math.min(box.height * scale, img.clientHeight - y);
+
+      return { x, y, width, height };
+    });
   }
 
   onFileSelected(event: any): void {
