@@ -16,7 +16,7 @@ const notifySubscribers = require('../utils/notifier');
 exports.getAllImages = function() {
   return new Promise(async function(resolve, reject) {
     try {
-      const images = await Image.find().sort({ createdAt: -1 });
+      const images = await Image.find().sort({ uploadedAt: -1 });
       const imageList = images.map(image => ({
         id: image._id,
         url: image.url,
@@ -24,7 +24,7 @@ exports.getAllImages = function() {
         uploadedBy: image.uploadedBy,
         detectedPeopleCount: image.detectedPeopleCount,
         boundingBoxes: image.boundingBoxes,
-        createdAt: image.createdAt
+        uploadedAt: image.uploadedAt
       }));
       resolve({images: imageList});
     } catch (err) {

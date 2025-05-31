@@ -11,6 +11,8 @@ import {MatIconModule} from '@angular/material/icon';
 import {FormsModule} from '@angular/forms';
 import {NgFor, NgIf, NgStyle} from '@angular/common';
 import {environment} from '../../environments/environment';
+import {DatePipe} from '@angular/common';
+import {UserService} from '../user.service';
 
 @Component({
   selector: 'app-landing-page',
@@ -26,13 +28,15 @@ import {environment} from '../../environments/environment';
     FormsModule,
     NgFor,
     NgIf,
-    NgStyle
+    NgStyle,
+    DatePipe
   ],
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.scss'
 })
 export class LandingPageComponent implements OnInit {
   imageService = inject(ImageService);
+  userService = inject(UserService);
   selectedImage: Image | null = null;
 
   openFullImage(image: Image) {
@@ -55,7 +59,7 @@ export class LandingPageComponent implements OnInit {
     const scaleX = img.clientWidth / img.naturalWidth;
     const scaleY = img.clientHeight / img.naturalHeight;
 
-    image.boundingBoxes = image.boundingBoxes.map(box => ({
+    image.boundingBoxes = image.boundingBoxes.map((box: { x: number; y: number; width: number; height: number }) => ({
       x: box.x,
       y: box.y,
       width: box.width,
@@ -70,10 +74,16 @@ export class LandingPageComponent implements OnInit {
   async loadImages(): Promise<void> {
     try {
       const temp = await this.imageService.getAllImages();
-      this.images = temp.map(image => ({
-        ...image,
-        url: environment.apiUrl.replace(/\/$/, '') +"/"+ image.url
-      }));
+      this.images = await Promise.all(
+        temp.map(async (image) => {
+          const uploaderName = await this.userService.getUsernameById(image.uploadedBy).toPromise();
+          return {
+            ...image,
+            url: environment.apiUrl.replace(/\/$/, '') + "/" + image.url,
+            uploaderName: uploaderName?.username || 'Unknown'
+          };
+        })
+      );
     } catch (err) {
       console.error('Failed to load images:', err);
     }
