@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   pwdHash: { type: String },
   pwdSalt: { type: String },
   isConfirmed: { type: Boolean, default: false },
+  subscribed: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
 

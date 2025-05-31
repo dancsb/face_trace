@@ -167,9 +167,8 @@ paths:
                 email:
                   type: string
                   format: email
-              required:
-                - username
-                - email
+                subscribed:
+                  type: boolean
       responses:
         "200":
           description: User updated successfully.

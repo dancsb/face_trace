@@ -174,6 +174,7 @@ exports.userGet = function (id) {
         id: user._id,
         username: user.username,
         email: user.email,
+        subscribed: user.subscribed,
         createdAt: user.createdAt,
       });
     } catch (err) {
@@ -200,9 +201,7 @@ exports.userGetById = function(userId) {
       }
 
       resolve({
-        id: user._id,
         username: user.username,
-        email: user.email,
         createdAt: user.createdAt,
       });
     }
@@ -223,13 +222,32 @@ exports.userGetById = function(userId) {
 exports.userUpdate = function(body, id) {
   return new Promise(async function(resolve, reject) {
     try {
-      const { username, email } = body;
+      // Handle case where body is undefined, null, or empty object
+      if (!body || typeof body !== 'object' || Object.keys(body).length === 0) {
+        return resolve({ message: 'No fields to update' });
+      }
+
+      // Build update object with only provided fields that exist
+      const updateFields = {};
+      if (body.hasOwnProperty('username') && body.username !== undefined) {
+        updateFields.username = body.username;
+      }
+      if (body.hasOwnProperty('email') && body.email !== undefined) {
+        updateFields.email = body.email;
+      }
+      if (body.hasOwnProperty('subscribed') && body.subscribed !== undefined) {
+        updateFields.subscribed = body.subscribed;
+      }
+
+      // Only proceed with update if there are fields to update
+      if (Object.keys(updateFields).length === 0) {
+        return resolve({ message: 'No fields to update' });
+      }
 
       // Update the user details
       const updatedUser = await User.findOneAndUpdate(
         { _id: id },
-        { username },
-        { email },
+        updateFields,
         { new: true, runValidators: true },
       );
 

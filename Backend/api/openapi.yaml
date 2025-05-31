@@ -421,9 +421,6 @@ components:
       example:
         message: Successfully logged out
     user_body:
-      required:
-      - email
-      - username
       type: object
       properties:
         username:
@@ -431,6 +428,8 @@ components:
         email:
           type: string
           format: email
+        subscribed:
+          type: boolean
     inline_response_200_1:
       type: object
       properties:
