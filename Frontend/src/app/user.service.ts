@@ -350,8 +350,9 @@ export class UserService {
     return result;
   }
 
-
-
+  getCurrentUser(): User {
+    return this.userSubject.value;
+  }
 
   getID(): string {
     return this.userSubject.value._id;

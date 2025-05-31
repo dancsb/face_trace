@@ -9,7 +9,7 @@ module.exports.userLogin = function userLogin (req, res, next, body) {
 
       res.cookie('jwt', response.token, {
         httpOnly: true,
-        secure: false, // Set to true if using HTTPS
+        secure: process.env.RUN_CONFIG === 'production', // Set to true if using HTTPS
         maxAge: 1000 * 60 * 60 * 24 * 14, // 2 weeks
         path: '/',
       });
