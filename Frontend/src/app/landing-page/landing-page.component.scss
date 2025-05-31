@@ -104,19 +104,25 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-height: 90%;
-  max-width: 90%;
-  overflow: auto;
   border: 2px solid #fff;
   background: #222;
-  padding: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-.image-overlay-box img {
-  width: 100%;
-  height: auto;
-  display: block;
+.image-overlay-box .image-container {
   position: relative;
+  display: block;
+}
+
+.image-overlay-box .image-container img {
+  display: block;
+  max-width: calc(100vw - 104px);
+  max-height: calc(100vh - 104px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
 .bounding-box {
@@ -128,9 +134,15 @@
 
 .close-button {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 16px;
+  right: 16px;
   color: white;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+}
+
+.close-button:hover {
+  background: rgba(0, 0, 0, 0.7);
 }
 .image-preview-wrapper {
   position: relative;

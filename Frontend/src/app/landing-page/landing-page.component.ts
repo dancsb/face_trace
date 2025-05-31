@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnInit, OnDestroy} from '@angular/core';
 import {ImageService} from '../image.service';
 import {Image} from '../image';
 import {NavbarComponent} from '../navbar/navbar.component';
@@ -34,18 +34,19 @@ import {UserService} from '../user.service';
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.scss'
 })
-export class LandingPageComponent implements OnInit {
+export class LandingPageComponent implements OnInit, OnDestroy {
   imageService = inject(ImageService);
   userService = inject(UserService);
   selectedImage: Image | null = null;
-
   openFullImage(image: Image) {
     this.selectedImage = image;
     this.selectedImageUrl = image.url;
+    document.body.classList.add('overlay-open');
   }
   closeFullImage() {
     this.selectedImage = null;
     this.selectedImageUrl = null;
+    document.body.classList.remove('overlay-open');
   }
 
   description: string = '';
@@ -53,22 +54,41 @@ export class LandingPageComponent implements OnInit {
   images: Image[] = [];
   selectedImageUrl: string | null = null;
 
-
   onImageLoad(event: Event, image: Image) {
     const img = event.target as HTMLImageElement;
-    const scaleX = img.clientWidth / img.naturalWidth;
-    const scaleY = img.clientHeight / img.naturalHeight;
+    
+    // Calculate the actual displayed dimensions considering object-fit: contain
+    const containerWidth = img.offsetWidth;
+    const containerHeight = img.offsetHeight;
+    const naturalWidth = img.naturalWidth;
+    const naturalHeight = img.naturalHeight;
+    
+    // Calculate scale factor to maintain aspect ratio (object-fit: contain behavior)
+    const scaleX = containerWidth / naturalWidth;
+    const scaleY = containerHeight / naturalHeight;
+    const scale = Math.min(scaleX, scaleY);
+    
+    // Calculate the actual displayed image dimensions
+    const displayedWidth = naturalWidth * scale;
+    const displayedHeight = naturalHeight * scale;
+    
+    // Calculate offset to center the image within the container
+    const offsetX = (containerWidth - displayedWidth) / 2;
+    const offsetY = (containerHeight - displayedHeight) / 2;
 
     image.boundingBoxes = image.boundingBoxes.map((box: { x: number; y: number; width: number; height: number }) => ({
-      x: box.x * scaleX,
-      y: box.y * scaleY,
-      width: box.width * scaleX,
-      height: box.height * scaleY
+      x: box.x * scale + offsetX,
+      y: box.y * scale + offsetY,
+      width: box.width * scale,
+      height: box.height * scale
     }));
   }
-
   ngOnInit(): void {
     this.loadImages();
+  }
+
+  ngOnDestroy(): void {
+    document.body.classList.remove('overlay-open');
   }
 
   async loadImages(): Promise<void> {

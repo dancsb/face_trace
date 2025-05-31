@@ -21,23 +21,24 @@
 
   <h2 class="image-list-title">Uploaded Images</h2>
 
-  <p *ngIf="images.length === 0">No images uploaded yet.</p>
-  <div class="image-overlay-container" *ngIf="selectedImage">
+  <p *ngIf="images.length === 0">No images uploaded yet.</p>  <div class="image-overlay-container" *ngIf="selectedImage">
     <div class="overlay-backdrop" (click)="closeFullImage()"></div>
     <div class="image-overlay-box">
-      <img [src]="selectedImage.url"
-           alt="Full Image"
-           (load)="onImageLoad($event, selectedImage)"
-      />
+      <div class="image-container">
+        <img [src]="selectedImage.url"
+             alt="Full Image"
+             (load)="onImageLoad($event, selectedImage)"
+        />
 
-      <div *ngFor="let box of selectedImage.boundingBoxes"
-           class="bounding-box"
-           [ngStyle]="{
-           left: box.x + 'px',
-           top: box.y + 'px',
-           width: box.width + 'px',
-           height: box.height + 'px'
-         }">
+        <div *ngFor="let box of selectedImage.boundingBoxes"
+             class="bounding-box"
+             [ngStyle]="{
+             left: box.x + 'px',
+             top: box.y + 'px',
+             width: box.width + 'px',
+             height: box.height + 'px'
+           }">
+        </div>
       </div>
 
       <button mat-icon-button class="close-button" (click)="closeFullImage()">
