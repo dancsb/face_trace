@@ -7,7 +7,7 @@ var cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const express = require('express');
-const app = express();
+const ap = express();
 
 if (process.env.RUN_CONFIG === 'testing' || process.env.RUN_CONFIG === 'production') {
   app.use('/uploads', express.static('/uploads'));
