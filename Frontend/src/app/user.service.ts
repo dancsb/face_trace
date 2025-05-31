@@ -14,6 +14,7 @@ export class UserService {
     _id: '',
     user_name: '',
     email: '',
+    subscribed: false,
   });
   private userIsAvailableSubject = new BehaviorSubject<boolean>(false);
   user = this.userSubject.asObservable();
@@ -73,10 +74,10 @@ export class UserService {
         withCredentials: true
       }).subscribe({
         next: (response) => {
-          this.userSubject.next({ _id: '', user_name: '', email: ''});
+          this.userSubject.next({ _id: '', user_name: '', email: '', subscribed: false});
           this.isLoggedIn = false;
           resolve({ success: true, message: response.body?.message || 'Logout successful' });
-        }, error: (error) => {
+        },error: (error) => {
           //console.error('Failed to logout user:', error);
           reject(false);
         }
@@ -102,7 +103,6 @@ export class UserService {
       });
     });
   }
-
   updateUser(user_name: string, email: string): Promise<boolean> {
     // Update user in database
     // If successful, update userSubject
@@ -121,6 +121,29 @@ export class UserService {
           resolve(true);
         }, error: (error) => {
           console.error('Failed to update user data:', error);
+          reject(false);
+        }
+      });
+    });
+  }
+
+  updateSubscription(subscribed: boolean): Promise<boolean> {
+    // Update subscription status in database
+    // If successful, update userSubject
+    const user = {
+      subscribed: subscribed
+    };
+    return new Promise((resolve, reject) => {
+      this.http.put(`${environment.apiUrl}/user`, user, {
+        headers: { 'Content-Type': 'application/json' },
+        observe: 'response',
+        withCredentials: true
+      }).subscribe({
+        next: (response) => {
+          this.userSubject.next({ ...this.userSubject.value, subscribed });
+          resolve(true);
+        }, error: (error) => {
+          console.error('Failed to update subscription status:', error);
           reject(false);
         }
       });
@@ -276,7 +299,7 @@ export class UserService {
   }
   async getUserFromDb(): Promise<{success: boolean, user: any}> {
     return new Promise((resolve, reject) => {
-      this.http.get<{createdAt: string, id: string, email: string, username: string}>(`${environment.apiUrl}/user`, {
+      this.http.get<{createdAt: string, id: string, email: string, username: string, subscribed: boolean}>(`${environment.apiUrl}/user`, {
         headers: { 'Content-Type': 'application/json' },
         observe: 'response',
         withCredentials: true
@@ -286,6 +309,7 @@ export class UserService {
             _id: response.body?.id || '',
             user_name: response.body?.username || '',
             email: response.body?.email || '',
+            subscribed: response.body?.subscribed || false,
           } as User;
           this.userSubject.next(user);
           this.isLoggedIn = true;
