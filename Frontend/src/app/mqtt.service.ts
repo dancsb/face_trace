@@ -81,7 +81,7 @@ export class FaceTraceMqttService {
                 try {
                     // Parse the JSON message
                     const notificationData = JSON.parse(message.payload.toString());
-                    console.log('Received MQTT notification:', notificationData);
+                    //console.log('Received MQTT notification:', notificationData);
 
                     // Display toastr notification
                     this.showNotification(notificationData);
