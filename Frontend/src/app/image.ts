@@ -8,4 +8,5 @@ export interface Image {
   detectedPeopleCount: number;
   boundingBoxes: { x: number; y: number; width: number; height: number }[];
   previewBoxes?: { x: number; y: number; width: number; height: number }[];
+  scaledBoxes?: { x: number; y: number; width: number; height: number }[];
 }

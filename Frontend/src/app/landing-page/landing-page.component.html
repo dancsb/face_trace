@@ -28,9 +28,7 @@
         <img [src]="selectedImage.url"
              alt="Full Image"
              (load)="onImageLoad($event, selectedImage)"
-        />
-
-        <div *ngFor="let box of selectedImage.boundingBoxes"
+        />        <div *ngFor="let box of selectedImage.scaledBoxes"
              class="bounding-box"
              [ngStyle]="{
              left: box.x + 'px',

@@ -53,7 +53,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   selectedFile?: File;
   images: Image[] = [];
   selectedImageUrl: string | null = null;
-
   onImageLoad(event: Event, image: Image) {
     const img = event.target as HTMLImageElement;
     
@@ -76,7 +75,8 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     const offsetX = (containerWidth - displayedWidth) / 2;
     const offsetY = (containerHeight - displayedHeight) / 2;
 
-    image.boundingBoxes = image.boundingBoxes.map((box: { x: number; y: number; width: number; height: number }) => ({
+    // Create a new array for scaled boxes instead of modifying the original
+    image.scaledBoxes = image.boundingBoxes.map((box: { x: number; y: number; width: number; height: number }) => ({
       x: box.x * scale + offsetX,
       y: box.y * scale + offsetY,
       width: box.width * scale,
