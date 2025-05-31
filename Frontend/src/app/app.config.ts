@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -7,7 +7,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { provideToastr } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+import { MqttModule } from 'ngx-mqtt';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,6 +21,12 @@ export const appConfig: ApplicationConfig = {
       positionClass: 'toast-top-right',
       preventDuplicates: true,
       tapToDismiss: true,
-    }),
+    }),    importProvidersFrom(MqttModule.forRoot({
+      hostname: 'mqtt.dancs.org',
+      port: 8084,
+      path: '/mqtt',
+      protocol: 'wss',
+      connectOnCreate: false  // Prevent auto-connection during SSR
+    })),
   ]
 };
